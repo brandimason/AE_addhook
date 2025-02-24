@@ -1,0 +1,36 @@
+(function() {
+  if (!AudioEye.addHook) { return false; }
+
+  AudioEye.addHook("site-menu", "overrideSearchAlgo", function (conf) {
+
+    //Add Menu selector from product config here in the quotes, make sure they match exactly!
+    if (conf.selector === "#block-main-menu") {
+      return function () {
+        let all_items = [];
+
+        $ae("#block-main-menu .outermargin > ul > li").each(function () {
+          let firstLevel = [];
+
+          // Check if this menu item has a submenu (`ul` inside `li`)
+          let submenu = $ae(this).find("ul");
+
+          if (submenu.length) {
+            submenu.find("li").each(function () {
+              let secondLevel = [];
+
+              // Find submenu items (2nd level anchors or spans)
+              firstLevel.push({ elem: $ae(this).find("a, span").first(), items: secondLevel });
+            });
+          }
+
+          // Get the first-level menu item (either <a> or <span>)
+          let menuItem = $ae(this).find("a, span").first();
+
+          // Only add `items` property if submenu exists
+          all_items.push({ elem: menuItem, items: firstLevel.length ? firstLevel : undefined });
+        });
+        return all_items;
+      };
+    }
+  });
+})();
