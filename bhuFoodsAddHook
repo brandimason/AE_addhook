@@ -1,0 +1,42 @@
+// ///updated
+(function () {
+  if (!AudioEye.addHook) { return false; }
+
+  AudioEye.addHook("site-menu", "overrideSearchAlgo", function (conf) {
+
+    if (conf.selector === ".header-layout .header-item--navigation") {
+      return function () {
+        let all_items = [];
+
+        // Loop through top-level menu items
+        $ae(".site-nav.site-navigation .buddha-menu-item.site-nav__item").each(function () {
+          let firstLevel = [];
+
+          // Find second-level menu items
+          $ae(this).find('> .mm-submenu > li').each(function () {
+            let secondLevel = [];
+
+            // Find third-level menu items
+            $ae(this).find('ul.mm-last-level li a').not(':has(img)').each(function () {
+              let thirdLevel = [];
+              secondLevel.push({elem: $ae(this), items: thirdLevel});
+            });
+
+            firstLevel.push({
+              elem: $ae(this).find('> a'),
+              items: secondLevel
+            });
+          });
+
+          // Push top-level items with submenu structure
+          all_items.push({
+            elem: $ae(this).find('> a'),
+            items: firstLevel
+          });
+        });
+
+        return all_items;
+      };
+    }
+  });
+})();
